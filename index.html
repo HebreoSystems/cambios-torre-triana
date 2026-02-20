@@ -14,11 +14,12 @@
         .logo-h { font-size: 2.5em; font-weight: bold; color: #0038b8; margin-bottom: 10px; }
         label { display: block; margin-top: 15px; font-weight: bold; }
         select, input { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
+        canvas { border: 2px dashed #0038b8; background: #fafafa; border-radius: 8px; margin-top: 10px; touch-action: none; width: 100%; height: 150px; }
         .btn-main { width: 100%; padding: 20px; background-color: #0038b8; color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         .btn-pdf { flex: 2; padding: 15px; background-color: #0038b8; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-cancelar { flex: 1; padding: 15px; background-color: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; }
         .btn-borrar { width: 100%; margin-top: 10px; padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 8px; cursor: pointer; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         footer { margin-top: 30px; text-align: center; font-size: 0.8em; color: #777; border-top: 1px solid #eee; padding-top: 15px; }
     </style>
 </head>
@@ -35,7 +36,14 @@
     <div id="pantalla-form" class="hidden">
         <h2>Nueva Solicitud</h2>
         
-        <label>V.S. 1 (Cede turno):</label>
+        <label>Mes de la solicitud:</label>
+        <select id="mes">
+            <option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option>
+            <option>Mayo</option><option>Junio</option><option>Julio</option><option>Agosto</option>
+            <option>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
+        </select>
+
+        <label>V.S. 1 (Cede):</label>
         <select id="vs1">
             <option value="" disabled selected> </option>
             <option>JOSE ANTONIO VARGAS NAVARRO</option>
@@ -54,91 +62,81 @@
             <option>JUAN DE LOS DIOS GARCIA FEITO</option>
             <option>INMACULADA VERDON GALÁN</option>
             <option>ANTONIO ZAMORA GÓMEZ</option>
-            <option value="OTRO">-- OTRO (Añadir manual) --</option>
         </select>
-        <input type="text" id="turno1" placeholder="Día y Turno (V.S. 1)">
+        <input type="text" id="turno1" placeholder="Día y Turno">
 
-        <hr style="margin-top:20px; border: 0.5px solid #eee;">
-
-        <label>V.S. 2 (Realiza turno):</label>
+        <label>V.S. 2 (Realiza):</label>
         <select id="vs2">
             <option value="" disabled selected> </option>
-            <option>JOSE ANTONIO VARGAS NAVARRO</option>
-            <option>ANTONIO MONTERO ANGULO</option>
-            <option>MANUEL DE LA PEÑA VELASCO</option>
-            <option>Mª BEATRIZ DE ANDRÉS VELASCO</option>
-            <option>TERESA ESPINOSA SÁNCHEZ</option>
-            <option>MANUEL CASTILLO FERNANDEZ</option>
-            <option>MARIA DEL CARMEN GALLEGO PIÑA</option>
-            <option>ANGEL ROJAS GONZÁLEZ</option>
-            <option>JOSE ANTONIO GONZÁLEZ PIOSA</option>
-            <option>SERGIO AVILA GALÁN</option>
-            <option>MANUEL JIMENEZ VELARDO</option>
-            <option>MANUEL RODRÍGUEZ MARTÍNEZ</option>
-            <option>ANTONIO CABELLO VÁZQUEZ</option>
-            <option>JUAN DE LOS DIOS GARCIA FEITO</option>
-            <option>INMACULADA VERDON GALÁN</option>
             <option>ANTONIO ZAMORA GÓMEZ</option>
-            <option value="OTRO">-- OTRO (Añadir manual) --</option>
-        </select>
-        <input type="text" id="turno2" placeholder="Día y Turno (V.S. 2)">
+            <option>JOSE ANTONIO VARGAS NAVARRO</option>
+            </select>
+        <input type="text" id="turno2" placeholder="Día y Turno">
+
+        <label>Firma del V.S.:</label>
+        <canvas id="pizarra"></canvas>
+        <button onclick="limpiarFirma()" style="font-size:0.7em; margin-top:5px;">Limpiar Firma</button>
 
         <div class="btn-group">
             <button class="btn-pdf" onclick="generarPDF()">GENERAR PDF</button>
             <button class="btn-cancelar" onclick="volverInicio()">VOLVER</button>
         </div>
-        <button class="btn-borrar" onclick="confirmarBorrado()">BORRAR TODO</button>
-        
-        <footer>Powered by HebreoSystems.</footer>
+        <button class="btn-borrar" onclick="confirmarBorrado()">BORRAR DATOS</button>
     </div>
 </div>
 
 <script>
+    const canvas = document.getElementById('pizarra');
+    const ctx = canvas.getContext('2d');
+    let dibujando = false;
+
+    // Configuración de firma táctil
+    function iniciarDibujo(e) { dibujando = true; dibujar(e); }
+    function finDibujo() { dibujando = false; ctx.beginPath(); }
+    function dibujar(e) {
+        if (!dibujando) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX || e.touches[0].clientX) - rect.left;
+        const y = (e.clientY || e.touches[0].clientY) - rect.top;
+        ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+        ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+    }
+    canvas.addEventListener('mousedown', iniciarDibujo); canvas.addEventListener('mousemove', dibujar);
+    canvas.addEventListener('mouseup', finDibujo); canvas.addEventListener('touchstart', iniciarDibujo);
+    canvas.addEventListener('touchmove', dibujar); canvas.addEventListener('touchend', finDibujo);
+
     function mostrarFormulario() {
         document.getElementById('pantalla-inicio').classList.add('hidden');
         document.getElementById('pantalla-form').classList.remove('hidden');
     }
-
-    function volverInicio() {
-        document.getElementById('pantalla-form').classList.add('hidden');
-        document.getElementById('pantalla-inicio').classList.remove('hidden');
-    }
+    function volverInicio() { location.reload(); }
+    function limpiarFirma() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
     function confirmarBorrado() {
-        let pin = prompt("Introduce el código de seguridad (116768):");
-        if (pin === "116768") {
-            window.location.reload();
-        } else {
-            alert("Acceso denegado.");
-        }
+        if (prompt("PIN de seguridad:") === "116768") { location.reload(); }
     }
 
     async function generarPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        
-        let n1 = document.getElementById('vs1').value;
-        let n2 = document.getElementById('vs2').value;
-        if(!n1 || !n2) { alert("Completa los nombres."); return; }
+        const v1 = document.getElementById('vs1').value;
+        const v2 = document.getElementById('vs2').value;
+        const mes = document.getElementById('mes').value;
 
-        const t1 = document.getElementById('turno1').value;
-        const t2 = document.getElementById('turno2').value;
-        const fechaActual = new Date().toLocaleString();
-
-        doc.setFontSize(16);
-        doc.text("SOLICITUD CAMBIO DE TURNO - TORRE TRIANA", 20, 25);
+        doc.setFontSize(16); doc.text(`SOLICITUD CAMBIO TURNO - ${mes.toUpperCase()}`, 20, 25);
         doc.setFontSize(12);
-        doc.text(`D. ${n1}`, 20, 45);
-        doc.text(`REALIZA TURNO/S: ${t1}`, 20, 55);
-        doc.text(`D. ${n2}`, 20, 75);
-        doc.text(`REALIZA TURNO/S: ${t2}`, 20, 85);
-        doc.setFont(undefined, 'bold');
-        doc.text("Estado: Ok", 20, 105);
+        doc.text(`D. ${v1}`, 20, 45); doc.text(`TURNO: ${document.getElementById('turno1').value}`, 20, 55);
+        doc.text(`D. ${v2}`, 20, 75); doc.text(`TURNO: ${document.getElementById('turno2').value}`, 20, 85);
         
-        // El código del sello (canvas) iría aquí igual que antes
-        // ... (Para no alargar el mensaje, mantengo la lógica del sello anterior)
+        doc.setFont(undefined, 'bold'); doc.text("Estado: Ok", 20, 105);
         
-        doc.save(`Cambio_Triana_${n1}.pdf`);
+        // Insertar Firma
+        const imgFirma = canvas.toDataURL('image/png');
+        doc.addImage(imgFirma, 'PNG', 20, 120, 50, 25);
+        doc.setFontSize(8); doc.text("Firma del solicitante", 25, 150);
+
+        doc.text(`Validado por HebreoSystems el ${new Date().toLocaleString()}`, 20, 280);
+        doc.save(`Cambio_${v1}.pdf`);
     }
 </script>
 </body>

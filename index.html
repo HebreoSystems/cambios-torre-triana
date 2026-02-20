@@ -204,8 +204,19 @@
         doc.setFontSize(10); doc.text(s.d2, 20, 136, {maxWidth: 110});
         doc.addImage(s.f2, 'PNG', 140, 120, 45, 20);
 
+        // --- ADICIÓN DEL SELLO Y FRASE DE SEGURIDAD ---
+        // Insertamos el sello que has subido (ubicado a la derecha)
+        const imgSello = "Sello.jpg"; 
+        doc.addImage(imgSello, 'JPEG', 155, 170, 35, 35);
+
+        // Frase al pie con fecha y hora
+        doc.setFontSize(8); doc.setTextColor(100);
+        const ahora = new Date().toLocaleString();
+        doc.text(`Documento firmado digitalmente por HebreoSystems a las ${ahora}`, 105, 215, {align:'center'});
+        // ----------------------------------------------
+
         doc.setFontSize(9); doc.setTextColor(100);
-        doc.text("Powered by HebreoSystems.", 105, 170, {align:'center'});
+        doc.text("Powered by HebreoSystems.", 105, 285, {align:'center'});
         
         doc.save(`Cambio_${s.mes}_${s.v1.split(' ')[0]}.pdf`);
     }

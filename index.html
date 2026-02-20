@@ -2,142 +2,237 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HebreoSystems - Torre Triana</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Torre Triana - HebreoSystems</title>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background-color: #f0f2f5; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 500px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .hidden { display: none; }
-        h2 { text-align: center; color: #0038b8; border-bottom: 2px solid #0038b8; padding-bottom: 10px; }
-        .menu-principal { text-align: center; padding: 40px 0; }
-        .logo-h { font-size: 2.5em; font-weight: bold; color: #0038b8; margin-bottom: 10px; }
-        label { display: block; margin-top: 15px; font-weight: bold; }
-        select, input { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
-        canvas { border: 2px dashed #0038b8; background: #fafafa; border-radius: 8px; margin-top: 10px; touch-action: none; width: 100%; height: 150px; }
-        .btn-main { width: 100%; padding: 20px; background-color: #0038b8; color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-pdf { flex: 2; padding: 15px; background-color: #0038b8; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-cancelar { flex: 1; padding: 15px; background-color: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; }
-        .btn-borrar { width: 100%; margin-top: 10px; padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 8px; cursor: pointer; }
-        footer { margin-top: 30px; text-align: center; font-size: 0.8em; color: #777; border-top: 1px solid #eee; padding-top: 15px; }
+        :root { --p: #004a99; --a: #e64a19; --s: #2e7d32; --bg: #f4f7fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 10px; max-width: 600px; margin: auto; }
+        .card { background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 10px solid var(--p); }
+        h2 { text-align: center; color: var(--p); margin: 0; text-transform: uppercase; font-size: 1.2em; }
+        .sub { text-align: center; color: var(--a); font-weight: bold; font-size: 0.8em; margin-bottom: 20px; }
+        
+        .section { background: #f8f9fa; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #e1e8ed; }
+        label { display: block; font-weight: bold; font-size: 0.85em; color: #444; margin-top: 10px; }
+        select, input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #ced4da; border-radius: 10px; box-sizing: border-box; font-size: 15px; }
+        
+        .sig-box { border: 2px dashed #bbb; margin-top: 10px; border-radius: 10px; background: #fff; height: 140px; position: relative; }
+        canvas { position: absolute; left:0; top:0; width:100%; height:100%; touch-action: none; }
+        
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px; color: white; margin-top: 10px; transition: 0.3s; }
+        .btn-save { background: var(--p); }
+        .btn-pdf { background: var(--s); }
+        .btn-new { background: #6c757d; margin-bottom: 20px; }
+        
+        .lista-pendientes { margin-top: 25px; }
+        .item-pendiente { background: #fff; border-left: 5px solid var(--a); padding: 10px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .item-info { font-size: 0.85em; }
+        .status-badge { font-weight: bold; color: var(--a); font-size: 0.75em; text-transform: uppercase; }
+        .footer { text-align: center; margin-top: 30px; font-size: 11px; color: #888; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="pantalla-inicio" class="menu-principal">
-        <div class="logo-h">HebreoSystems</div>
-        <p>Control de Seguridad Torre Triana</p>
-        <button class="btn-main" onclick="mostrarFormulario()">NUEVA SOLICITUD</button>
-        <footer>Powered by HebreoSystems.</footer>
-    </div>
+<div id="app">
+    <button class="btn btn-new" onclick="nuevaSolicitud()">+ Crear Nueva Solicitud</button>
 
-    <div id="pantalla-form" class="hidden">
-        <h2>Nueva Solicitud</h2>
-        
-        <label>Mes de la solicitud:</label>
-        <select id="mes">
-            <option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option>
-            <option>Mayo</option><option>Junio</option><option>Julio</option><option>Agosto</option>
-            <option>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
-        </select>
+    <div class="card" id="formulario" style="display:none;">
+        <h2>Edificio Admvo. Torre Triana</h2>
+        <div class="sub">SOLICITUD DE CAMBIO DE TURNO</div>
 
-        <label>V.S. 1 (Cede):</label>
-        <select id="vs1">
-            <option value="" disabled selected> </option>
-            <option>JOSE ANTONIO VARGAS NAVARRO</option>
-            <option>ANTONIO MONTERO ANGULO</option>
-            <option>MANUEL DE LA PEÑA VELASCO</option>
-            <option>Mª BEATRIZ DE ANDRÉS VELASCO</option>
-            <option>TERESA ESPINOSA SÁNCHEZ</option>
-            <option>MANUEL CASTILLO FERNANDEZ</option>
-            <option>MARIA DEL CARMEN GALLEGO PIÑA</option>
-            <option>ANGEL ROJAS GONZÁLEZ</option>
-            <option>JOSE ANTONIO GONZÁLEZ PIOSA</option>
-            <option>SERGIO AVILA GALÁN</option>
-            <option>MANUEL JIMENEZ VELARDO</option>
-            <option>MANUEL RODRÍGUEZ MARTÍNEZ</option>
-            <option>ANTONIO CABELLO VÁZQUEZ</option>
-            <option>JUAN DE LOS DIOS GARCIA FEITO</option>
-            <option>INMACULADA VERDON GALÁN</option>
-            <option>ANTONIO ZAMORA GÓMEZ</option>
-        </select>
-        <input type="text" id="turno1" placeholder="Día y Turno">
+        <label>📅 Mes del Cambio</label>
+        <select id="mes_c"></select>
 
-        <label>V.S. 2 (Realiza):</label>
-        <select id="vs2">
-            <option value="" disabled selected> </option>
-            <option>ANTONIO ZAMORA GÓMEZ</option>
-            <option>JOSE ANTONIO VARGAS NAVARRO</option>
-            </select>
-        <input type="text" id="turno2" placeholder="Día y Turno">
-
-        <label>Firma del V.S.:</label>
-        <canvas id="pizarra"></canvas>
-        <button onclick="limpiarFirma()" style="font-size:0.7em; margin-top:5px;">Limpiar Firma</button>
-
-        <div class="btn-group">
-            <button class="btn-pdf" onclick="generarPDF()">GENERAR PDF</button>
-            <button class="btn-cancelar" onclick="volverInicio()">VOLVER</button>
+        <div class="section">
+            <label>👤 Vigilante de Seguridad 1</label>
+            <select id="v1" onchange="toggleM(this, 'm1')"></select>
+            <input type="text" id="m1" style="display:none;" placeholder="Nombre manual...">
+            <label>🔄 Días y Turnos V.S. 1</label>
+            <textarea id="d1" rows="2" placeholder="Ej: Día 12 M, 13 T..."></textarea>
+            <div class="sig-box"><canvas id="c1"></canvas></div>
+            <button onclick="p1.clear()" style="font-size:10px; color:red; border:none; background:none;">Borrar Firma</button>
         </div>
-        <button class="btn-borrar" onclick="confirmarBorrado()">BORRAR DATOS</button>
+
+        <div class="section">
+            <label>👤 Vigilante de Seguridad 2</label>
+            <select id="v2" onchange="toggleM(this, 'm2')"></select>
+            <input type="text" id="m2" style="display:none;" placeholder="Nombre manual...">
+            <label>🔄 Días y Turnos V.S. 2</label>
+            <textarea id="d2" rows="2" placeholder="Ej: Día 12 T, 13 M..."></textarea>
+            <div class="sig-box"><canvas id="c2"></canvas></div>
+            <button onclick="p2.clear()" style="font-size:10px; color:red; border:none; background:none;">Borrar Firma</button>
+        </div>
+
+        <button class="btn btn-save" onclick="guardarCambio()">💾 Guardar / Actualizar Solicitud</button>
+        <button id="btnPdf" class="btn btn-pdf" style="display:none;" onclick="generarPDF()">📥 Descargar PDF Final (OK)</button>
+        <button class="btn" style="background:#dc3545;" onclick="cerrarForm()">Cancelar</button>
     </div>
+
+    <div class="lista-pendientes" id="lista_container">
+        <h3 style="color: var(--p); font-size: 1em;">Solicitudes en Curso / Historial</h3>
+        <div id="lista_items"></div>
+    </div>
+
+    <div class="footer">Powered by HebreoSystems.</div>
 </div>
 
 <script>
-    const canvas = document.getElementById('pizarra');
-    const ctx = canvas.getContext('2d');
-    let dibujando = false;
+    const NOMBRES = ["JOSE ANTONIO VARGAS NAVARRO", "ANTONIO MONTERO ANGULO", "MANUEL DE LA PEÑA VELASCO", "Mª BEATRIZ DE ANDRÉS VELASCO", "TERESA ESPINOSA SÁNCHEZ", "MANUEL CASTILLO FERNANDEZ", "MARIA DEL CARMEN GALLEGO PIÑA", "ANGEL ROJAS GONZÁLEZ", "JOSE ANTONIO GONZÁLEZ PIOSA", "SERGIO AVILA GALÁN", "MANUEL JIMENEZ VELARDO", "MANUEL RODRÍGUEZ MARTÍNEZ", "ANTONIO CABELLO VÁZQUEZ", "JUAN DE DIOS GARCIA FEITO", "INMACULADA VERDON GALÁN", "ANTONIO ZAMORA GÓMEZ"];
+    const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    
+    let p1, p2, solicitudes = JSON.parse(localStorage.getItem('cambios_tt') || '[]');
+    let editIndex = -1;
 
-    // Configuración de firma táctil
-    function iniciarDibujo(e) { dibujando = true; dibujar(e); }
-    function finDibujo() { dibujando = false; ctx.beginPath(); }
-    function dibujar(e) {
-        if (!dibujando) return;
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX || e.touches[0].clientX) - rect.left;
-        const y = (e.clientY || e.touches[0].clientY) - rect.top;
-        ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
-        ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
-    }
-    canvas.addEventListener('mousedown', iniciarDibujo); canvas.addEventListener('mousemove', dibujar);
-    canvas.addEventListener('mouseup', finDibujo); canvas.addEventListener('touchstart', iniciarDibujo);
-    canvas.addEventListener('touchmove', dibujar); canvas.addEventListener('touchend', finDibujo);
+    function init() {
+        document.getElementById('mes_c').innerHTML = MESES.map(m => `<option>${m}</option>`).join('');
+        const opts = '<option value="">Seleccionar V.S...</option>' + NOMBRES.map(n => `<option>${n}</option>`).join('') + '<option value="manual">OTRO (Manual)</option>';
+        document.getElementById('v1').innerHTML = opts;
+        document.getElementById('v2').innerHTML = opts;
 
-    function mostrarFormulario() {
-        document.getElementById('pantalla-inicio').classList.add('hidden');
-        document.getElementById('pantalla-form').classList.remove('hidden');
-    }
-    function volverInicio() { location.reload(); }
-    function limpiarFirma() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
-    function confirmarBorrado() {
-        if (prompt("PIN de seguridad:") === "116768") { location.reload(); }
+        p1 = new SignaturePad(document.getElementById('c1'));
+        p2 = new SignaturePad(document.getElementById('c2'));
+        pintarLista();
     }
 
-    async function generarPDF() {
+    function toggleM(s, id) { document.getElementById(id).style.display = s.value==='manual' ? 'block' : 'none'; }
+
+    function nuevaSolicitud() {
+        editIndex = -1;
+        document.getElementById('formulario').style.display = 'block';
+        resetForm();
+    }
+
+    function resetForm() {
+        document.getElementById('v1').value = ""; document.getElementById('v2').value = "";
+        document.getElementById('d1').value = ""; document.getElementById('d2').value = "";
+        p1.clear(); p2.clear();
+        document.getElementById('btnPdf').style.display = 'none';
+        resizeCanvas();
+    }
+
+    function cerrarForm() { document.getElementById('formulario').style.display = 'none'; }
+
+    function guardarCambio() {
+        const obj = {
+            mes: document.getElementById('mes_c').value,
+            v1: obtenerN('v1','m1'), d1: document.getElementById('d1').value, f1: p1.toDataURL(),
+            v2: obtenerN('v2','m2'), d2: document.getElementById('d2').value, f2: p2.toDataURL(),
+            ok: (!p1.isEmpty() && !p2.isEmpty()),
+            fecha: new Date().toLocaleString()
+        };
+
+        if(editIndex > -1) solicitudes[editIndex] = obj;
+        else solicitudes.push(obj);
+
+        localStorage.setItem('cambios_tt', JSON.stringify(solicitudes));
+        pintarLista();
+        cerrarForm();
+    }
+
+    function pintarLista() {
+        const cont = document.getElementById('lista_items');
+        cont.innerHTML = solicitudes.map((s, i) => `
+            <div class="item-pendiente">
+                <div class="item-info">
+                    <strong>${s.mes}</strong> - V.S.1: ${s.v1.split(' ')[0]} / V.S.2: ${s.v2.split(' ')[0] || '?'} <br>
+                    <span class="status-badge">${s.ok ? '<b style="color:green;">ESTADO: OK</b>' : 'PENDIENTE FIRMA'}</span>
+                </div>
+                <div>
+                    <button onclick="editar(${i})" style="padding:5px; border-radius:5px; background:var(--p); color:white; border:none;">Abrir</button>
+                    <button onclick="borrar(${i})" style="padding:5px; border-radius:5px; background:red; color:white; border:none;">🗑</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function editar(i) {
+        editIndex = i;
+        const s = solicitudes[i];
+        document.getElementById('formulario').style.display = 'block';
+        document.getElementById('mes_c').value = s.mes;
+        document.getElementById('v1').value = NOMBRES.includes(s.v1) ? s.v1 : 'manual';
+        if(document.getElementById('v1').value === 'manual') document.getElementById('m1').value = s.v1;
+        document.getElementById('d1').value = s.d1;
+        p1.fromDataURL(s.f1);
+        
+        document.getElementById('v2').value = NOMBRES.includes(s.v2) ? s.v2 : 'manual';
+        document.getElementById('d2').value = s.d2;
+        p2.fromDataURL(s.f2);
+        
+        if(s.ok) document.getElementById('btnPdf').style.display = 'block';
+        resizeCanvas();
+    }
+
+    function borrar(i) { 
+        let pin = prompt("Introduce el código de seguridad para borrar la solicitud:");
+        if (pin === "116768") {
+            solicitudes.splice(i, 1); 
+            localStorage.setItem('cambios_tt', JSON.stringify(solicitudes)); 
+            pintarLista(); 
+        } else if (pin !== null) {
+            alert("Código incorrecto.");
+        }
+    }
+
+    function obtenerN(v, m) { const s = document.getElementById(v); return s.value === 'manual' ? document.getElementById(m).value : s.value; }
+
+    function generarPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const v1 = document.getElementById('vs1').value;
-        const v2 = document.getElementById('vs2').value;
-        const mes = document.getElementById('mes').value;
+        const s = solicitudes[editIndex];
 
-        doc.setFontSize(16); doc.text(`SOLICITUD CAMBIO TURNO - ${mes.toUpperCase()}`, 20, 25);
+        doc.setFillColor(0, 74, 153);
+        doc.rect(0, 0, 210, 25, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16); doc.setFont(undefined, 'bold');
+        doc.text("EDIFICIO ADMVO. TORRE TRIANA", 105, 12, {align:'center'});
+        doc.setFontSize(10);
+        doc.text("SOLICITUD OFICIAL DE CAMBIO DE TURNO", 105, 18, {align:'center'});
+
+        doc.setTextColor(0,0,0);
         doc.setFontSize(12);
-        doc.text(`D. ${v1}`, 20, 45); doc.text(`TURNO: ${document.getElementById('turno1').value}`, 20, 55);
-        doc.text(`D. ${v2}`, 20, 75); doc.text(`TURNO: ${document.getElementById('turno2').value}`, 20, 85);
-        
-        doc.setFont(undefined, 'bold'); doc.text("Estado: Ok", 20, 105);
-        
-        // Insertar Firma
-        const imgFirma = canvas.toDataURL('image/png');
-        doc.addImage(imgFirma, 'PNG', 20, 120, 50, 25);
-        doc.setFontSize(8); doc.text("Firma del solicitante", 25, 150);
+        doc.text(`MES: ${s.mes.toUpperCase()}`, 20, 35);
+        doc.text(`FECHA CIERRE: ${s.fecha}`, 130, 35);
 
-        doc.text(`Validado por HebreoSystems el ${new Date().toLocaleString()}`, 20, 280);
-        doc.save(`Cambio_${v1}.pdf`);
+        doc.setDrawColor(0, 74, 153); doc.setLineWidth(0.5);
+        doc.rect(15, 45, 180, 50);
+        doc.setFont(undefined, 'bold'); doc.text("VIGILANTE DE SEGURIDAD 1:", 20, 53);
+        doc.setFont(undefined, 'normal'); doc.text(`D. ${s.v1}`, 20, 60);
+        doc.text("DÍAS Y TURNOS V.S. 1:", 20, 70);
+        doc.setFontSize(10); doc.text(s.d1, 20, 76, {maxWidth: 110});
+        doc.addImage(s.f1, 'PNG', 140, 60, 45, 20);
+
+        doc.setFontSize(12); doc.rect(15, 105, 180, 50);
+        doc.setFont(undefined, 'bold'); doc.text("VIGILANTE DE SEGURIDAD 2:", 20, 113);
+        doc.setFont(undefined, 'normal'); doc.text(`D. ${s.v2}`, 20, 120);
+        doc.text("DÍAS Y TURNOS V.S. 2:", 20, 130);
+        doc.setFontSize(10); doc.text(s.d2, 20, 136, {maxWidth: 110});
+        doc.addImage(s.f2, 'PNG', 140, 120, 45, 20);
+
+        const imgSello = "Sello.jpg"; 
+        doc.addImage(imgSello, 'JPEG', 155, 170, 35, 35);
+
+        doc.setFontSize(8); doc.setTextColor(100);
+        const ahora = new Date().toLocaleString();
+        doc.text(`Documento firmado digitalmente por HebreoSystems a las ${ahora}`, 105, 215, {align:'center'});
+
+        doc.setFontSize(9); doc.setTextColor(100);
+        doc.text("Powered by HebreoSystems.", 105, 285, {align:'center'});
+        
+        doc.save(`Cambio_${s.mes}_${s.v1.split(' ')[0]}.pdf`);
     }
+
+    function resizeCanvas() {
+        [1, 2].forEach(i => {
+            const c = document.getElementById('c'+i);
+            const r = window.devicePixelRatio || 1;
+            c.width = c.offsetWidth * r; c.height = c.offsetHeight * r;
+            c.getContext("2d").scale(r, r);
+        });
+    }
+
+    window.onload = init;
 </script>
 </body>
 </html>

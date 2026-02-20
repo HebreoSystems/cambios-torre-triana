@@ -11,7 +11,7 @@
         h2 { text-align: center; color: #0038b8; border-bottom: 2px solid #0038b8; padding-bottom: 10px; }
         label { display: block; margin-top: 15px; font-weight: bold; }
         select, input { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
-        .manual-name { display: none; margin-top: 10px; border: 1px solid #0038b8; }
+        .manual-name { display: none; margin-top: 10px; border: 2px solid #0038b8; background-color: #eef2ff; }
         .status { margin-top: 25px; text-align: center; font-size: 1.3em; color: #28a745; }
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         .btn-pdf { flex: 3; padding: 15px; background-color: #0038b8; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
@@ -26,50 +26,54 @@
     
     <label>V.S. 1 (Cede turno):</label>
     <select id="vs1" onchange="checkManual('vs1', 'manual1')">
-        <option>JOSE ANTONIO VARGAS</option>
+        <option value="" disabled selected> </option>
+        <option>JOSE ANTONIO VARGAS NAVARRO</option>
+        <option>ANTONIO MONTERO ANGULO</option>
+        <option>MANUEL DE LA PEÑA VELASCO</option>
+        <option>Mª BEATRIZ DE ANDRÉS VELASCO</option>
+        <option>TERESA ESPINOSA SÁNCHEZ</option>
+        <option>MANUEL CASTILLO FERNANDEZ</option>
+        <option>MARIA DEL CARMEN GALLEGO PIÑA</option>
+        <option>ANGEL ROJAS GONZÁLEZ</option>
+        <option>JOSE ANTONIO GONZÁLEZ PIOSA</option>
+        <option>SERGIO AVILA GALÁN</option>
+        <option>MANUEL JIMENEZ VELARDO</option>
+        <option>MANUEL RODRÍGUEZ MARTÍNEZ</option>
+        <option>ANTONIO CABELLO VÁZQUEZ</option>
+        <option>JUAN DE LOS DIOS GARCIA FEITO</option>
+        <option>INMACULADA VERDON GALÁN</option>
         <option>ANTONIO ZAMORA GÓMEZ</option>
-        <option>MANUEL MORENO</option>
-        <option>FRANCISCO JAVIER</option>
-        <option>JUAN MANUEL</option>
-        <option>ALBERTO RODRÍGUEZ</option>
-        <option>DAVID GARCÍA</option>
-        <option>MIGUEL ÁNGEL</option>
-        <option>JOSÉ LUIS</option>
-        <option>RAFAEL MARTÍN</option>
-        <option>FERNANDO JOSÉ</option>
-        <option>ANTONIO JESÚS</option>
-        <option>CARLOS JAVIER</option>
-        <option>JOSÉ MANUEL</option>
-        <option>ÁNGEL LUIS</option>
-        <option>DIEGO JOSÉ</option>
         <option value="OTRO">-- OTRO (Añadir manual) --</option>
     </select>
-    <input type="text" id="manual1" class="manual-name" placeholder="Escribe nombre completo">
+    <input type="text" id="manual1" class="manual-name" placeholder="Escribe nombre completo del V.S. 1">
 
     <label>Día y Turno:</label>
     <input type="text" id="turno1" placeholder="Ej: Mañana - 22/02">
 
+    <hr style="margin-top:20px; border: 0.5px solid #eee;">
+
     <label>V.S. 2 (Realiza turno):</label>
     <select id="vs2" onchange="checkManual('vs2', 'manual2')">
+        <option value="" disabled selected> </option>
+        <option>JOSE ANTONIO VARGAS NAVARRO</option>
+        <option>ANTONIO MONTERO ANGULO</option>
+        <option>MANUEL DE LA PEÑA VELASCO</option>
+        <option>Mª BEATRIZ DE ANDRÉS VELASCO</option>
+        <option>TERESA ESPINOSA SÁNCHEZ</option>
+        <option>MANUEL CASTILLO FERNANDEZ</option>
+        <option>MARIA DEL CARMEN GALLEGO PIÑA</option>
+        <option>ANGEL ROJAS GONZÁLEZ</option>
+        <option>JOSE ANTONIO GONZÁLEZ PIOSA</option>
+        <option>SERGIO AVILA GALÁN</option>
+        <option>MANUEL JIMENEZ VELARDO</option>
+        <option>MANUEL RODRÍGUEZ MARTÍNEZ</option>
+        <option>ANTONIO CABELLO VÁZQUEZ</option>
+        <option>JUAN DE LOS DIOS GARCIA FEITO</option>
+        <option>INMACULADA VERDON GALÁN</option>
         <option>ANTONIO ZAMORA GÓMEZ</option>
-        <option>JOSE ANTONIO VARGAS</option>
-        <option>MANUEL MORENO</option>
-        <option>FRANCISCO JAVIER</option>
-        <option>JUAN MANUEL</option>
-        <option>ALBERTO RODRÍGUEZ</option>
-        <option>DAVID GARCÍA</option>
-        <option>MIGUEL ÁNGEL</option>
-        <option>JOSÉ LUIS</option>
-        <option>RAFAEL MARTÍN</option>
-        <option>FERNANDO JOSÉ</option>
-        <option>ANTONIO JESÚS</option>
-        <option>CARLOS JAVIER</option>
-        <option>JOSÉ MANUEL</option>
-        <option>ÁNGEL LUIS</option>
-        <option>DIEGO JOSÉ</option>
         <option value="OTRO">-- OTRO (Añadir manual) --</option>
     </select>
-    <input type="text" id="manual2" class="manual-name" placeholder="Escribe nombre completo">
+    <input type="text" id="manual2" class="manual-name" placeholder="Escribe nombre completo del V.S. 2">
 
     <label>Día y Turno:</label>
     <input type="text" id="turno2" placeholder="Ej: Noche - 25/02">
@@ -92,11 +96,11 @@
     }
 
     function confirmarBorrado() {
-        let pin = prompt("Introduce el código de seguridad para borrar:");
+        let pin = prompt("Introduce el código de seguridad (116768):");
         if (pin === "116768") {
-            location.reload();
+            window.location.reload();
         } else {
-            alert("Código incorrecto. Los datos están protegidos.");
+            alert("Acceso denegado. Código incorrecto.");
         }
     }
 
@@ -109,11 +113,12 @@
         let n2 = document.getElementById('vs2').value;
         if(n2 === 'OTRO') n2 = document.getElementById('manual2').value.toUpperCase();
 
+        if(!n1 || !n2) { alert("Selecciona a los vigilantes primero."); return; }
+
         const t1 = document.getElementById('turno1').value;
         const t2 = document.getElementById('turno2').value;
         const fechaActual = new Date().toLocaleString();
 
-        // Datos del documento
         doc.setFontSize(16);
         doc.text("SOLICITUD CAMBIO DE TURNO - TORRE TRIANA", 20, 25);
         doc.setFontSize(12);
@@ -126,23 +131,18 @@
         doc.text("Estado: Ok", 20, 105);
         doc.setFont(undefined, 'normal');
 
-        // Generar Sello
         const canvas = document.createElement('canvas');
         canvas.width = 300; canvas.height = 300;
         const ctx = canvas.getContext('2d');
-
         const grad = ctx.createLinearGradient(50, 50, 250, 250);
         grad.addColorStop(0, '#0038b8'); grad.addColorStop(0.5, '#ffffff'); grad.addColorStop(1, '#0038b8');
         ctx.fillStyle = grad;
         ctx.beginPath(); ctx.arc(150, 150, 110, 0, Math.PI * 2); ctx.fill();
-
         ctx.strokeStyle = '#0038b8'; ctx.lineWidth = 8;
         ctx.beginPath(); ctx.arc(150, 150, 125, 0, Math.PI * 2); ctx.stroke();
-        
         ctx.fillStyle = '#0038b8'; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center';
         ctx.fillText("TORRE TRIANA", 150, 75);
         ctx.fillText("SEGURIDAD", 150, 235);
-
         ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
         ctx.font = 'bold 20px Arial';
         ctx.save();
